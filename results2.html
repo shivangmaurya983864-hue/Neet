@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Performance Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --accent: #007aff; /* Apple Blue */
+            --gold: #ffcc00;
+            --success: #34c759;
+            --danger: #ff3b30;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: #ffffff;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container { width: 100%; max-width: 1000px; }
+
+        /* Header Section */
+        .header { text-align: center; margin-bottom: 50px; }
+        .header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(to right, #fff, #666); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* Performance Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1.5fr 2fr;
+            gap: 30px;
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 32px;
+            border: 1px solid var(--border);
+            margin-bottom: 50px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Circular Chart */
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-right: 1px solid var(--border);
+        }
+        .circular-progress {
+            width: 180px; height: 180px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) 0deg, #111 0deg);
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            transition: 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .circular-progress::before {
+            content: ""; position: absolute;
+            width: 150px; height: 150px;
+            background: var(--bg); border-radius: 50%;
+        }
+        .percent-value { position: relative; font-size: 2.5rem; font-weight: 800; color: var(--accent); }
+
+        /* Stats Grid */
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .stat-card {
+            background: rgba(255,255,255,0.02);
+            padding: 20px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+        .stat-card h3 { margin: 0; font-size: 1.8rem; font-weight: 800; }
+        .stat-card p { margin: 5px 0 0; color: #888; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Analysis Cards */
+        .analysis-section { display: flex; flex-direction: column; gap: 20px; }
+        .q-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            transition: 0.3s;
+        }
+        .q-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+        .badge-correct { background: rgba(52, 199, 89, 0.1); color: var(--success); border: 1px solid var(--success); }
+        .badge-wrong { background: rgba(255, 59, 48, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        .badge-skipped { background: rgba(255, 255, 255, 0.1); color: #888; border: 1px solid #444; }
+
+        .explanation {
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(0, 122, 255, 0.05);
+            border-radius: 16px;
+            border-left: 4px solid var(--accent);
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        .home-btn {
+            display: block; width: fit-content; margin: 50px auto;
+            padding: 18px 45px; background: #fff; color: #000;
+            text-decoration: none; border-radius: 100px; font-weight: 700;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .home-btn:hover { transform: scale(1.05); box-shadow: 0 15px 40px rgba(255,255,255,0.3); }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Examination Report</h1>
+        <p style="color: #666;">Deep analysis of your performance in NEET Mock Test</p>
+    </div>
+
+    <div class="dashboard">
+        <div class="chart-container">
+            <div class="circular-progress" id="progressCircle">
+                <span class="percent-value" id="accuracyTxt">0%</span>
+            </div>
+            <p style="margin-top:15px; font-weight:600; color:#888">Accuracy</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" style="border-bottom: 3px solid var(--gold);">
+                <h3 id="score">0</h3>
+                <p>Final Score</p>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid var(--accent);">
+                <h3 id="totalQ">0</h3>
+                <p>Total Items</p>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid var(--success);">
+                <h3 id="correct">0</h3>
+                <p>Correct</p>
+            </div>
+            <div class="stat-card" style="border-bottom: 3px solid var(--danger);">
+                <h3 id="wrong">0</h3>
+                <p>Mistakes</p>
+            </div>
+        </div>
+    </div>
+
+    <h2 style="margin-bottom: 30px; font-size: 1.8rem;">Review & Explanations</h2>
+    <div class="analysis-section" id="resultsBody">
+        </div>
+
+    <a href="index.html" class="home-btn">Retake or Exit</a>
+</div>
+
+<script>
+    let data = null;
+let examType = "";
+
+if(localStorage.getItem("dailyResult")){
+    data = JSON.parse(localStorage.getItem("dailyResult"));
+    examType = "Daily Warmup";
+}
+else if(localStorage.getItem("lastExamResults")){
+    data = JSON.parse(localStorage.getItem("lastExamResults"));
+    examType = "Practice Set";
+}
+else{
+    window.location.href = "index.html";
+}
+    
+
+    if(!data) {
+        window.location.href = "index.html";
+    }
+
+    function generateResults() {
+        let score = 0;
+        let correct = 0;
+        let wrong = 0;
+        let total = data.questions.length;
+        let html = "";
+
+        data.questions.forEach((q, i) => {
+            const userAns = data.answers[i];
+            const isCorrect = userAns === q.answer;
+            const isSkipped = userAns === null;
+
+            let badge = `<span class="badge badge-skipped">SKIPPED</span>`;
+            if(!isSkipped) {
+                if(isCorrect) {
+                    score += 4; correct++;
+                    badge = `<span class="badge badge-correct">CORRECT +4</span>`;
+                } else {
+                    score -= 1; wrong++;
+                    badge = `<span class="badge badge-wrong">MISTAKE -1</span>`;
+                }
+            }
+
+            html += `
+                <div class="q-card">
+                    ${badge}
+                    <div style="font-size:1.2rem; font-weight:600; margin-bottom:15px">Q${i+1}. ${q.question}</div>
+                    <div style="display:flex; gap:20px; font-size:0.9rem; margin-bottom:10px">
+                        <span style="color: #888">Your Response: <b style="color:${isCorrect ? 'var(--success)' : (isSkipped ? '#888' : 'var(--danger)')}">${userAns !== null ? q.options[userAns] : 'None'}</b></span>
+                    </div>
+                    <div style="font-size:0.9rem; color: var(--success); font-weight:700">
+                        Solution: ${q.options[q.answer]}
+                    </div>
+                    <div class="explanation">
+                        <b style="color:var(--accent); display:block; margin-bottom:5px;">CONCEPT EXPLANATION:</b>
+                        ${q.explanation}
+                    </div>
+                </div>
+            `;
+        });
+
+        // Update Stats
+        document.getElementById("score").innerText = score;
+        document.getElementById("correct").innerText = correct;
+        document.getElementById("wrong").innerText = wrong;
+        document.getElementById("totalQ").innerText = total;
+        
+        const accuracy = total > 0 ? Math.round((correct/total) * 100) : 0;
+        document.getElementById("accuracyTxt").innerText = accuracy + "%";
+        
+        // Animate Circle
+        const circle = document.getElementById("progressCircle");
+        circle.style.background = `conic-gradient(var(--accent) ${accuracy * 3.6}deg, #111 0deg)`;
+
+        document.getElementById("resultsBody").innerHTML = html;
+    }
+
+    generateResults();
+</script>
+
+</body>
+</html>

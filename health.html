@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divya Care Space 💜 | Premium Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root{
+    --bg:#120e1a;
+    --card:#1e1829;
+    --primary:#e9c2ff;
+    --mint:#4ade80;
+    --rose:#fb7185;
+    --gold:#facc15;
+    --sky:#38bdf8;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',sans-serif}
+
+body{
+    background: #120e1a;
+    color:white;
+    padding: 20px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+/* Back Button Style */
+.nav-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.back-btn {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+}
+
+.sos-btn {
+    background: var(--rose);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(251, 113, 133, 0.4);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap:20px;
+}
+
+.card{
+    background:var(--card);
+    padding:25px;
+    border-radius:25px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: 0.3s;
+}
+
+.card:hover { transform: translateY(-5px); border-color: var(--primary); }
+
+.big{ font-size:28px; font-weight:700; margin-top:10px; }
+
+.action-btn{
+    margin-top:15px; padding:12px; border:none; border-radius:15px;
+    background:var(--primary); color:black; font-weight:600;
+    cursor:pointer; width:100%; transition: 0.2s;
+}
+.action-btn:active { transform: scale(0.95); }
+
+.alert{ margin-top:15px; padding:14px; border-radius:18px; background:#2d243d; font-size: 0.9rem; line-height: 1.4; }
+
+.progress-bar{ height:8px; background:#2d243d; border-radius:10px; margin-top:10px; overflow:hidden; }
+.progress-fill{ height:100%; background:var(--mint); width:0%; transition:width .5s ease; }
+
+.mood-circles { display: flex; gap: 10px; margin-top: 15px; }
+.mood-item { font-size: 1.5rem; cursor: pointer; opacity: 0.4; transition: 0.3s; }
+.mood-item.active { opacity: 1; transform: scale(1.2); }
+
+.reminder-list { margin-top: 15px; list-style: none; }
+.reminder-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 0.85rem; }
+.reminder-item input { accent-color: var(--mint); }
+
+</style>
+</head>
+<body>
+
+<header>
+    <div class="nav-header">
+        <a href="index.html" class="back-btn">
+            <i data-lucide="arrow-left"></i> Dashboard
+        </a>
+        <div>
+            <h1>💜 Divya's Space</h1>
+            <p style="opacity:0.6">Self-Care & NEET Mastery</p>
+        </div>
+    </div>
+    <button class="sos-btn" onclick="alert('SOS Alert Sent to Family! (Demo)')">
+        <i data-lucide="shield-alert"></i> SOS
+    </button>
+</header>
+
+<div class="grid">
+
+    <div class="card">
+        <h3><i data-lucide="moon-star"></i> Cycle Tracker</h3>
+        <div id="cyclePhase" class="big" style="color:var(--primary)"></div>
+        <div id="cycleDay" style="margin-top:5px; opacity:0.7"></div>
+        <div id="cycleMsg" class="alert"></div>
+    </div>
+
+    <div class="card">
+        <h3><i data-lucide="droplets"></i> Hydration Glow</h3>
+        <div id="waterDisplay" class="big" style="color:var(--sky)">0.0 L</div>
+        <div class="progress-bar"><div id="waterBar" class="progress-fill"></div></div>
+        <button class="action-btn" onclick="addWater()">Drink 250ml <i data-lucide="glass-water"></i></button>
+        <div id="waterMsg" class="alert"></div>
+    </div>
+
+    <div class="card">
+        <h3><i data-lucide="smile"></i> How are you, Divya?</h3>
+        <div class="mood-circles">
+            <span class="mood-item" onclick="setMood(this)">🔥</span>
+            <span class="mood-item" onclick="setMood(this)">💖</span>
+            <span class="mood-item" onclick="setMood(this)">😴</span>
+            <span class="mood-item" onclick="setMood(this)">🫠</span>
+            <span class="mood-item" onclick="setMood(this)">🌸</span>
+        </div>
+        <div id="moodMsg" class="alert">Your mood helps me adjust your schedule.</div>
+    </div>
+
+    <div class="card">
+        <h3><i data-lucide="sparkles"></i> Glow & Health</h3>
+        <ul class="reminder-list">
+            <li class="reminder-item"><input type="checkbox"> Morning Skincare Routine</li>
+            <li class="reminder-item"><input type="checkbox"> Multivitamin / Iron 💊</li>
+            <li class="reminder-item"><input type="checkbox"> 10 Min Meditation</li>
+            <li class="reminder-item"><input type="checkbox"> Eye Rest (Anti-Glare)</li>
+        </ul>
+        <div class="alert" style="background: rgba(233, 194, 255, 0.1); border: 1px dashed var(--primary);">
+            <b>Pro-Tip:</b> Use Aloe Vera today for study-stress skin.
+        </div>
+    </div>
+
+    <div class="card" style="background: linear-gradient(to bottom right, #1e1829, #2d243d);">
+        <h3><i data-lucide="heart"></i> Daily Power</h3>
+        <div id="affirmation" style="font-size: 1.2rem; font-weight: 600; margin-top: 15px; line-height: 1.5;"></div>
+    </div>
+
+</div>
+
+<script>
+lucide.createIcons();
+
+/* =========================
+   REAL CYCLE TRACKER
+========================= */
+
+const CYCLE_LENGTH = 28;
+
+function getStoredPeriodStart(){
+    let stored = localStorage.getItem("divya_periodStart");
+    if(!stored){
+        stored = "2026-02-25";
+        localStorage.setItem("divya_periodStart", stored);
+    }
+    return new Date(stored);
+}
+
+function updateCycle(){
+    const periodStart = getStoredPeriodStart();
+
+    let today = new Date();
+    today.setHours(0,0,0,0);
+
+    let diffDays = Math.floor((today - periodStart)/(1000*60*60*24));
+    let cycleDay = ((diffDays % CYCLE_LENGTH) + CYCLE_LENGTH) % CYCLE_LENGTH;
+
+    let phase="", msg="";
+
+    if(cycleDay <=4){
+        phase="Menstrual Phase";
+        msg="Low energy expected. Keep study light. Hydrate + revise NCERT diagrams.";
+    } 
+    else if(cycleDay <=13){
+        phase="Follicular Phase";
+        msg="High focus window. Best time for Physics numericals.";
+    } 
+    else if(cycleDay <=16){
+        phase="Ovulation Phase";
+        msg="Peak cognitive state. Mock test recommended.";
+    } 
+    else{
+        phase="Luteal Phase";
+        msg="Energy fluctuation possible. Do revision + PYQs.";
+    }
+
+    document.getElementById("cyclePhase").innerText = phase;
+    document.getElementById("cycleDay").innerText = "Cycle Day: " + (cycleDay+1);
+    document.getElementById("cycleMsg").innerText = msg;
+}
+
+updateCycle();
+
+
+/* =========================
+   REAL HYDRATION TRACKER
+========================= */
+
+const WATER_GOAL = 2.5;
+
+function resetWaterIfNewDay(){
+    const today = new Date().toDateString();
+    const lastDate = localStorage.getItem("waterDate");
+
+    if(lastDate !== today){
+        localStorage.setItem("divya_water","0");
+        localStorage.setItem("waterDate", today);
+    }
+}
+
+function addWater(){
+    let water = parseFloat(localStorage.getItem("divya_water")) || 0;
+    water += 0.25;
+    localStorage.setItem("divya_water", water);
+    updateWaterUI();
+}
+
+function updateWaterUI(){
+    let water = parseFloat(localStorage.getItem("divya_water")) || 0;
+
+    document.getElementById("waterDisplay").innerText =
+        water.toFixed(1)+" L";
+
+    let percent = Math.min((water/WATER_GOAL)*100,100);
+    document.getElementById("waterBar").style.width = percent+"%";
+
+    let msg = "";
+    if(water < 1){
+        msg = "Low hydration. Drink water now.";
+    }
+    else if(water < WATER_GOAL){
+        msg = "On track. Keep sipping.";
+    }
+    else{
+        msg = "Hydration goal achieved today.";
+    }
+
+    document.getElementById("waterMsg").innerText = msg;
+}
+
+resetWaterIfNewDay();
+updateWaterUI();
+
+
+/* =========================
+   REAL MOOD TRACKER
+========================= */
+
+function setMood(el){
+    document.querySelectorAll('.mood-item')
+        .forEach(m => m.classList.remove('active'));
+
+    el.classList.add('active');
+
+    const mood = el.innerText;
+    localStorage.setItem("divya_mood", mood);
+
+    const moodMap = {
+        "🔥":"High energy detected. Attempt 75+ MCQs.",
+        "💖":"Balanced mood. Continue structured study.",
+        "😴":"Low energy. Take 20 min rest.",
+        "🫠":"Overload detected. Switch subject.",
+        "🌸":"Calm state. Perfect for revision."
+    };
+
+    document.getElementById("moodMsg").innerText =
+        moodMap[mood] || "";
+}
+
+function loadMood(){
+    const saved = localStorage.getItem("divya_mood");
+    if(!saved) return;
+
+    document.querySelectorAll(".mood-item")
+        .forEach(m=>{
+            if(m.innerText===saved){
+                m.classList.add("active");
+            }
+        });
+
+    setMood(document.querySelector(".mood-item.active"));
+}
+
+loadMood();
+
+
+/* =========================
+   REAL STUDY TIMER
+========================= */
+
+let studyTimer;
+let timeLeft = 45*60;
+
+function startStudy(){
+
+    clearInterval(studyTimer);
+
+    studyTimer = setInterval(()=>{
+
+        let min = Math.floor(timeLeft/60);
+        let sec = timeLeft%60;
+
+        document.getElementById("studyTimer").innerText =
+            `${min.toString().padStart(2,"0")}:${sec.toString().padStart(2,"0")}`;
+
+        if(timeLeft <= 0){
+            clearInterval(studyTimer);
+
+            // Log session
+            let sessions = parseInt(localStorage.getItem("deepSessions")) || 0;
+            sessions++;
+            localStorage.setItem("deepSessions", sessions);
+
+            alert("Session Complete. Take 5 min break.");
+        }
+
+        timeLeft--;
+
+    },1000);
+
+    document.getElementById("studyMsg").innerText =
+        "Deep Work Running. Stay focused.";
+}
+
+
+/* =========================
+   REAL HEALTH CHECKLIST
+========================= */
+
+document.querySelectorAll(".reminder-item input")
+    .forEach((checkbox,index)=>{
+
+        const key = "health_check_"+index;
+
+        checkbox.checked = localStorage.getItem(key)==="true";
+
+        checkbox.addEventListener("change",()=>{
+            localStorage.setItem(key, checkbox.checked);
+        });
+
+});
+
+
+/* =========================
+   REAL DAILY AFFIRMATION
+========================= */
+
+function getTodayAffirmation(){
+    const list = [
+        "Consistency beats motivation.",
+        "You are building medical discipline.",
+        "Health + Rank both matter.",
+        "Every page counts.",
+        "You are stronger than distraction."
+    ];
+
+    const todayIndex =
+        new Date().getDate() % list.length;
+
+    return list[todayIndex];
+}
+
+document.getElementById("affirmation").innerText =
+    getTodayAffirmation();
+
+</script>
+</body>
+</html>

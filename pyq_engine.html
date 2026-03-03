@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | Elite Engine v4</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg: #020617;
+    --panel: rgba(15, 23, 42, 0.7);
+    --accent: #00d2ff;
+    --accent-glow: rgba(0, 210, 255, 0.4);
+    --green: #10b981;
+    --red: #ef4444;
+    --text: #f8fafc;
+    --muted: #64748b;
+    --border: rgba(255, 255, 255, 0.06);
+    --glass: rgba(15, 23, 42, 0.8);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: radial-gradient(circle at top right, #1e1b4b, #020617, #020617);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Animation */
+body::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: var(--accent);
+    filter: blur(150px);
+    opacity: 0.1;
+    top: 10%;
+    left: 10%;
+    z-index: -1;
+}
+
+.app-wrapper {
+    display: grid;
+    grid-template-columns: 300px 1fr 340px;
+    width: 98vw;
+    height: 95vh;
+    gap: 20px;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* ✅ NEW: Back Button Style */
+.back-nav {
+    margin-bottom: 20px;
+}
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: 0.3s;
+    padding: 8px 0;
+}
+.btn-back:hover { color: var(--accent); }
+
+.nav-header {
+    font-family: 'Space Grotesk';
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.nav-header::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--accent), transparent); opacity: 0.3; }
+
+.q-palette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.q-palette::-webkit-scrollbar { width: 4px; }
+.q-palette::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+.q-box {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.q-box:hover { background: rgba(255,255,255,0.05); transform: translateY(-2px); }
+.q-box.active { 
+    background: var(--accent); 
+    color: #000; 
+    box-shadow: 0 0 15px var(--accent-glow);
+    border-color: var(--accent);
+}
+.q-box.done { border-color: var(--green); color: var(--green); background: rgba(16, 185, 129, 0.05); }
+
+/* Main Console */
+.main-console {
+    background: var(--glass);
+    backdrop-filter: blur(25px);
+    border: 1px solid var(--border);
+    border-radius: 32px;
+    padding: 40px 60px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+
+.top-meta {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    align-items: center;
+}
+
+.badge {
+    padding: 8px 16px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: rgba(0, 210, 255, 0.1);
+    border: 1px solid var(--accent-glow);
+    color: var(--accent);
+    letter-spacing: 1px;
+}
+
+.question-area { flex: 1; }
+
+.question-text {
+    font-family: 'Space Grotesk';
+    font-size: 1.6rem;
+    line-height: 1.4;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: #fff;
+}
+
+.options-grid { display: grid; gap: 16px; }
+
+.option-card {
+    padding: 18px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.option-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.option-card.selected {
+    border-color: var(--accent);
+    background: rgba(0, 210, 255, 0.08);
+    box-shadow: inset 0 0 10px rgba(0, 210, 255, 0.1);
+}
+
+.option-letter {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--accent);
+    background: rgba(0, 210, 255, 0.05);
+    border: 1px solid var(--accent-glow);
+}
+
+/* Control Footer */
+.control-footer {
+    padding-top: 30px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn {
+    padding: 14px 28px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-family: 'Space Grotesk';
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+
+.btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { color: #fff; border-color: #fff; }
+
+.btn-accent { 
+    background: var(--accent); 
+    color: #000; 
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+.btn-accent:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); }
+
+/* Right Panel */
+.analytics-panel { display: flex; flex-direction: column; gap: 20px; }
+
+.stat-card {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 30px;
+    text-align: center;
+}
+
+.stat-card i { font-size: 2rem; color: var(--accent); margin-bottom: 15px; }
+
+.btn-submit {
+    margin-top: auto;
+    padding: 22px;
+    background: linear-gradient(135deg, #ef4444, #991b1b);
+    color: white;
+    border-radius: 24px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+}
+
+.btn-submit:hover { filter: brightness(1.2); transform: scale(1.02); }
+
+</style>
+</head>
+<body>
+
+<div class="app-wrapper">
+    <aside class="sidebar">
+        <div class="back-nav">
+            <a href="index.html" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+        <div class="nav-header"><i class="fas fa-th-large"></i> Question Matrix</div>
+        <div class="q-palette"></div>
+    </aside>
+
+    <main class="main-console">
+        <div class="top-meta">
+            <div class="badge"><i class="fas fa-bolt"></i> ELITE DAILY MCQ</div>
+            <div style="color: var(--muted); font-size: 0.8rem; font-weight: 600;">SESSION ID: <span style="color: var(--text);">#NEET2026</span></div>
+        </div>
+
+        <div class="question-area">
+            <div class="question-text"></div>
+            <div class="options-grid"></div>
+        </div>
+
+        <footer class="control-footer">
+            <button class="btn btn-ghost"><i class="fas fa-chevron-left"></i> Previous</button>
+            <button class="btn btn-accent">Save & Next <i class="fas fa-chevron-right"></i></button>
+        </footer>
+    </main>
+
+    <div class="analytics-panel">
+        <div class="stat-card">
+            <i class="fas fa-user-shield"></i>
+            <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 5px;">Elite Practice Mode</div>
+            <div style="color: var(--muted); font-size: 0.8rem;">Focus on accuracy, time is secondary.</div>
+        </div>
+        
+        <button class="btn btn-submit"><i class="fas fa-check-double"></i> Submit Full Test</button>
+    </div>
+</div>
+
+<script src="daily_question.js"></script>
+
+<script>
+// --- YOUR ORIGINAL SCRIPT UNTOUCHED ---
+let currentIndex = 0;
+let answers = new Array(dailyQuestions.length).fill(null);
+
+const questionText = document.querySelector(".question-text");
+const optionsGrid = document.querySelector(".options-grid");
+const palette = document.querySelector(".q-palette");
+
+function loadQuestion(){
+    const q = dailyQuestions[currentIndex];
+    questionText.innerText = q.question;
+    optionsGrid.innerHTML = "";
+
+    q.options.forEach((opt,i)=>{
+        let div = document.createElement("div");
+        div.className="option-card";
+        if(answers[currentIndex]===i) div.classList.add("selected");
+        div.innerHTML=`
+        <div class="option-letter">${String.fromCharCode(65+i)}</div>
+        <div style="font-weight: 500;">${opt}</div>`;
+        div.onclick=()=>{
+            answers[currentIndex]=i;
+            loadQuestion();
+            updatePalette();
+        };
+        optionsGrid.appendChild(div);
+    });
+    updatePalette();
+}
+
+function updatePalette(){
+    palette.innerHTML="";
+    for(let i=0;i<dailyQuestions.length;i++){
+        let box=document.createElement("div");
+        box.className="q-box";
+        box.innerText=(i+1).toString().padStart(2,"0");
+        if(i===currentIndex) box.classList.add("active");
+        if(answers[i]!==null) box.classList.add("done");
+        box.onclick=()=>{currentIndex=i;loadQuestion();};
+        palette.appendChild(box);
+    }
+}
+
+document.querySelector(".btn-ghost").onclick=()=>{
+    if(currentIndex>0){currentIndex--;loadQuestion();}
+};
+
+document.querySelector(".btn-accent").onclick=()=>{
+    if(currentIndex<dailyQuestions.length-1){currentIndex++;loadQuestion();}
+};
+
+document.querySelector(".btn-submit").onclick=()=>{
+    let score=0,correct=0,wrong=0;
+    dailyQuestions.forEach((q,i)=>{
+        if(answers[i]===q.answer){score+=5;correct++;}
+        else if(answers[i]!==null){score-=5;wrong++;}
+    });
+    localStorage.setItem("dailyResult",JSON.stringify({
+        questions: dailyQuestions,
+        answers: answers,
+        score: score,
+        correct: correct,
+        wrong: wrong,
+        total: dailyQuestions.length
+    }));
+    window.location.href="results2.html";
+};
+
+loadQuestion();
+</script>
+
+</body>
+</html>

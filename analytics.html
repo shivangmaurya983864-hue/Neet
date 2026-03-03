@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | Analytics</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+--bg:#05070a;
+--card:#0f172a;
+--accent:#3b82f6;
+--green:#10b981;
+--border:rgba(255,255,255,0.08);
+--text-main:#f8fafc;
+--text-dim:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Plus Jakarta Sans',sans-serif}
+body{
+background-color:var(--bg);
+background-image:radial-gradient(circle at top right,#1e293b,#05070a);
+color:var(--text-main);
+min-height:100vh;
+padding:20px;
+}
+.nav-header{
+max-width:1200px;
+margin:0 auto 30px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+}
+.back-link{
+text-decoration:none;
+color:var(--text-main);
+display:flex;
+align-items:center;
+gap:12px;
+background:rgba(255,255,255,0.05);
+padding:10px 20px;
+border-radius:14px;
+border:1px solid var(--border);
+font-weight:600;
+transition:0.3s;
+}
+.back-link:hover{
+background:rgba(255,255,255,0.1);
+transform:translateX(-5px);
+}
+.analytics-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:20px;
+max-width:1200px;
+margin:0 auto;
+}
+.card{
+background:var(--card);
+border:1px solid var(--border);
+border-radius:24px;
+padding:25px;
+}
+.card-title{
+font-size:0.85rem;
+font-weight:700;
+color:var(--text-dim);
+text-transform:uppercase;
+letter-spacing:1px;
+margin-bottom:20px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+.big-stat{font-size:2.5rem;font-weight:800;margin-bottom:5px}
+.sub-stat{font-size:0.9rem;color:var(--green);font-weight:600}
+.subject-bar{margin-bottom:15px}
+.bar-info{display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.9rem}
+.bar-bg{height:8px;background:rgba(255,255,255,0.05);border-radius:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:10px;transition:width 1s}
+.heatmap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(12px,1fr));gap:5px;margin-top:10px}
+.dot{width:12px;height:12px;border-radius:3px;background:rgba(255,255,255,0.05)}
+.dot.active{background:var(--accent)}
+.rank-card{
+background:linear-gradient(135deg,#1e3a8a,#3b82f6);
+text-align:center;
+}
+canvas{width:100%!important;height:150px!important}
+</style>
+</head>
+<body>
+
+<nav class="nav-header">
+<a href="index.html" class="back-link">
+<i class="fas fa-arrow-left"></i> Dashboard
+</a>
+<h1 style="font-size:1.4rem;font-weight:800;">
+Performance <span style="color:var(--accent)">Analytics</span>
+</h1>
+</nav>
+
+<div class="analytics-grid">
+
+<div class="card">
+<div class="card-title"><i class="fas fa-stopwatch"></i> Study Time Today</div>
+<div class="big-stat" id="live-timer">00:00:00</div>
+<div class="sub-stat">Target: 08:00:00</div>
+</div>
+
+<div class="card rank-card">
+<div class="card-title" style="color:#fff;"><i class="fas fa-trophy"></i> Rank Predictor</div>
+<div class="big-stat" id="rankStat" style="font-size:3.5rem;">--</div>
+<p style="font-size:0.8rem;opacity:0.9;">Based on Mock Average</p>
+</div>
+
+<div class="card">
+<div class="card-title"><i class="fas fa-bullseye"></i> Accuracy Rate</div>
+<div class="big-stat" id="accuracyStat" style="color:var(--green)">0%</div>
+<div class="sub-stat">Based on 720 scale</div>
+</div>
+
+<div class="card">
+<div class="card-title"><i class="fas fa-book-open"></i> Syllabus Tracker</div>
+
+<div class="subject-bar">
+<div class="bar-info"><span>Biology</span><span id="bioP">0%</span></div>
+<div class="bar-bg"><div class="bar-fill" id="bioBar" style="background:#10b981;width:0%"></div></div>
+</div>
+
+<div class="subject-bar">
+<div class="bar-info"><span>Chemistry</span><span id="chemP">0%</span></div>
+<div class="bar-bg"><div class="bar-fill" id="chemBar" style="background:#f59e0b;width:0%"></div></div>
+</div>
+
+<div class="subject-bar">
+<div class="bar-info"><span>Physics</span><span id="phyP">0%</span></div>
+<div class="bar-bg"><div class="bar-fill" id="phyBar" style="background:#ef4444;width:0%"></div></div>
+</div>
+</div>
+
+<div class="card" style="grid-column:span 2;">
+<div class="card-title"><i class="fas fa-chart-line"></i> Score Trend</div>
+<canvas id="scoreChart"></canvas>
+</div>
+
+<div class="card">
+<div class="card-title"><i class="fas fa-calendar-alt"></i> Study Streak</div>
+<div class="heatmap-grid" id="heatmap"></div>
+<p id="streakText" style="margin-top:15px;font-size:0.75rem;color:var(--text-dim)"></p>
+</div>
+
+</div>
+
+<script>
+
+/* ================= SCORE + RANK ================= */
+
+const scores = JSON.parse(localStorage.getItem("mockScores")) || [];
+let avg = 0;
+
+if(scores.length>0){
+avg = Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
+}
+
+function predictRank(score){
+if(score>=700) return "<100";
+if(score>=680) return "100-500";
+if(score>=650) return "500-1500";
+if(score>=620) return "1500-5000";
+if(score>=580) return "5000-15000";
+if(score>=520) return "15000-40000";
+return ">40000";
+}
+
+document.getElementById("rankStat").innerText =
+scores.length>0 ? "#"+predictRank(avg) : "--";
+
+document.getElementById("accuracyStat").innerText =
+scores.length>0 ? Math.round((avg/720)*100)+"%" : "0%";
+
+/* ================= SCORE CHART ================= */
+
+if(scores.length>0){
+const ctx=document.getElementById("scoreChart").getContext("2d");
+new Chart(ctx,{
+type:"line",
+data:{
+labels:scores.map((_,i)=>"Test "+(i+1)),
+datasets:[{
+data:scores,
+borderColor:"#3b82f6",
+tension:0.4,
+borderWidth:3,
+fill:true,
+backgroundColor:"rgba(59,130,246,0.1)"
+}]
+},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{legend:{display:false}},
+scales:{y:{display:false},x:{grid:{display:false}}}
+}
+});
+}
+
+/* ================= SYLLABUS ================= */
+
+const chapterData = JSON.parse(localStorage.getItem("neetChaptersData")) || [];
+
+if(chapterData.length>0){
+
+function percent(subject){
+const arr = chapterData.filter(c=>c.subject===subject);
+if(arr.length===0) return 0;
+return Math.round(arr.filter(c=>c.progress===100).length/arr.length*100);
+}
+
+const bio=percent("Biology");
+const chem=percent("Chemistry");
+const phy=percent("Physics");
+
+document.getElementById("bioBar").style.width=bio+"%";
+document.getElementById("chemBar").style.width=chem+"%";
+document.getElementById("phyBar").style.width=phy+"%";
+
+document.getElementById("bioP").innerText=bio+"%";
+document.getElementById("chemP").innerText=chem+"%";
+document.getElementById("phyP").innerText=phy+"%";
+}
+
+/* ================= STREAK ================= */
+
+const streak=parseInt(localStorage.getItem("studyStreak"))||0;
+const heatmap=document.getElementById("heatmap");
+
+for(let i=0;i<84;i++){
+const dot=document.createElement("div");
+dot.className="dot";
+if(i<streak) dot.classList.add("active");
+heatmap.appendChild(dot);
+}
+
+document.getElementById("streakText").innerText=
+"Total streak: "+streak+" Days 🔥";
+
+/* ================= LIVE TIMER ================= */
+
+function updateTimer(){
+const sec=parseInt(localStorage.getItem("studySeconds"))||0;
+const h=Math.floor(sec/3600).toString().padStart(2,'0');
+const m=Math.floor((sec%3600)/60).toString().padStart(2,'0');
+const s=(sec%60).toString().padStart(2,'0');
+document.getElementById("live-timer").innerText=`${h}:${m}:${s}`;
+}
+
+updateTimer();
+setInterval(updateTimer,1000);
+
+</script>
+
+</body>
+</html>

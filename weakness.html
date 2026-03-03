@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | The Hospital</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* ... (Aapki purani styles preserved hain) ... */
+.hospital-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:30px;
+}
+
+.ai-insight{
+display:flex;
+gap:10px;
+align-items:center;
+padding:15px;
+}
+
+.filter-bar{
+display:flex;
+gap:15px;
+margin-bottom:20px;
+align-items: center;
+}
+
+.filter-bar input,
+.filter-bar select{
+padding:10px;
+border-radius:8px;
+border:1px solid rgba(255,255,255,.1);
+background:rgba(255,255,255,.05);
+color:white;
+}
+
+.weakness-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.weakness-table th,
+.weakness-table td{
+padding:12px;
+border-bottom:1px solid rgba(255,255,255,.08);
+font-size:14px;
+}
+
+.tag{
+padding:4px 10px;
+border-radius:8px;
+font-size:12px;
+font-weight:600;
+}
+
+.tag.conceptual{background:#ef444433;color:#ef4444}
+.tag.calc{background:#3b82f633;color:#3b82f6}
+.tag.silly{background:#f59e0b33;color:#f59e0b}
+
+.status.critical{color:#ef4444;font-weight:700}
+.status.unstable{color:#f59e0b;font-weight:700}
+.status.stable{color:#22c55e;font-weight:700}
+
+.btn-sm{
+padding:6px 12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-size:12px;
+}
+
+.btn-accent{background:#6366f1;color:white}
+.btn-secondary{background:#374151;color:white}
+
+/* 🔥 NEW CLEAR ALL BUTTON STYLE */
+.btn-danger-outline {
+    background: transparent;
+    color: #ef4444;
+    border: 1px solid #ef4444;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+    margin-left: auto; /* Push to right in filter bar */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn-danger-outline:hover {
+    background: #ef4444;
+    color: white;
+}
+
+.popup{
+position:fixed;
+inset:0;
+background:rgba(0,0,0,.7);
+display:flex;
+justify-content:center;
+align-items:center;
+z-index: 1000;
+}
+
+.popup-content{
+background:#111827;
+padding:30px;
+border-radius:15px;
+width:700px;
+}
+
+.hidden{display:none}
+</style>
+</head>
+
+<body class="dark-theme">
+
+<div class="app-container">
+
+<nav class="sidebar">
+<div class="logo">NEET<span>OS</span></div>
+<ul class="nav-links">
+<li><a href="index.html"><i data-lucide="layout-dashboard"></i> Dashboard</a></li>
+<li><a href="chapters.html"><i data-lucide="book-open"></i> 100 Chapters</a></li>
+<li><a href="pyq_engine.html"><i data-lucide="target"></i> PYQ Engine</a></li>
+<li class="active"><i data-lucide="alert-circle"></i> The Hospital</li>
+<li><a href="analytics.html"><i data-lucide="bar-chart-3"></i> Analytics</a></li>
+<li><a href="health.html"><i data-lucide="heart-pulse"></i> Health</a></li>
+</ul>
+</nav>
+
+<main class="main-content">
+
+<header class="hospital-header">
+<div>
+<h1>The <span style="color:#ef4444">Hospital</span></h1>
+<p>Repair conceptual leaks before exam.</p>
+</div>
+
+<div class="ai-insight card">
+<i data-lucide="brain-circuit"></i>
+<span id="aiInsightText">Analyzing...</span>
+</div>
+</header>
+
+<div class="filter-bar card">
+<input type="text" id="searchBox" placeholder="Search topic...">
+<select id="subjectFilter">
+<option value="all">All Subjects</option>
+<option value="Biology">Biology</option>
+<option value="Physics">Physics</option>
+<option value="Chemistry">Chemistry</option>
+</select>
+<select id="errorFilter">
+<option value="all">All Errors</option>
+<option value="Conceptual">Conceptual</option>
+<option value="Silly">Silly</option>
+<option value="Calculation">Calculation</option>
+</select>
+
+<button class="btn-danger-outline" onclick="clearAllWeaknesses()">
+    <i data-lucide="trash-2" style="width:16px"></i> Clear All Records
+</button>
+</div>
+
+<div class="card">
+<table class="weakness-table">
+<thead>
+<tr>
+<th>Question</th>
+<th>Topic</th>
+<th>Error</th>
+<th>Count</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="weakness-list"></tbody>
+</table>
+</div>
+
+</main>
+</div>
+
+<div id="detail-modal" class="popup hidden">
+<div class="popup-content">
+<h2>Error Post-Mortem</h2>
+<p id="modalQuestion" style="color: #94a3b8; margin: 10px 0;"></p>
+<hr style="margin:15px 0; border: 0; border-top: 1px solid rgba(255,255,255,0.1);">
+<p id="modalExplanation" style="line-height: 1.6;"></p>
+<div style="margin-top:20px; display:flex; gap:10px">
+    <button class="btn-accent btn-sm" onclick="markResolved()">Mark Resolved</button>
+    <button class="btn-secondary btn-sm" onclick="closeModal()">Close</button>
+</div>
+</div>
+</div>
+
+<script>
+lucide.createIcons();
+
+let weaknesses = JSON.parse(localStorage.getItem("weaknessData")) || [
+    { id:1, question:"Net ATP gain in Glycolysis?", topic:"Glycolysis", subject:"Biology", errorType:"Conceptual", count:3, explanation:"Net gain = 2 ATP." },
+    { id:2, question:"Work done in adiabatic process?", topic:"Thermodynamics", subject:"Physics", errorType:"Calculation", count:1, explanation:"Use W = (P1V1 - P2V2)/(gamma -1)" }
+];
+
+function saveData(){
+    localStorage.setItem("weaknessData",JSON.stringify(weaknesses));
+}
+
+/* 🔥 FUNCTION TO CLEAR EVERYTHING */
+function clearAllWeaknesses() {
+    if(confirm("Bhai, kya aap sach mein saare records delete karna chahte ho? Yeh action wapas nahi hoga!")) {
+        weaknesses = [];
+        saveData();
+        renderTable();
+    }
+}
+
+function renderTable(){
+    const tbody=document.getElementById("weakness-list");
+    tbody.innerHTML="";
+
+    let search=document.getElementById("searchBox").value.toLowerCase();
+    let subjectFilter=document.getElementById("subjectFilter").value;
+    let errorFilter=document.getElementById("errorFilter").value;
+
+    let filtered = weaknesses.filter(w=>{
+        return (
+            (subjectFilter==="all" || w.subject===subjectFilter) &&
+            (errorFilter==="all" || w.errorType===errorFilter) &&
+            (w.topic.toLowerCase().includes(search) || w.question.toLowerCase().includes(search))
+        );
+    });
+
+    if(filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:40px; color:#64748b;">Hospital is empty. You are healthy! 🩺</td></tr>`;
+    }
+
+    filtered.forEach(w=>{
+        let status="stable";
+        if(w.count>=3) status="critical";
+        else if(w.count==2) status="unstable";
+
+        tbody.innerHTML+=`
+        <tr>
+        <td>${w.question}</td>
+        <td><strong>${w.topic}</strong><br><small style="color:#64748b">${w.subject}</small></td>
+        <td><span class="tag ${w.errorType.toLowerCase()}">${w.errorType}</span></td>
+        <td>${w.count}x</td>
+        <td class="status ${status}">${status.toUpperCase()}</td>
+        <td>
+        <button class="btn-accent btn-sm" onclick="openModal(${w.id})">Solve</button>
+        <button class="btn-secondary btn-sm" onclick="resolve(${w.id})">Resolved</button>
+        </td>
+        </tr>
+        `;
+    });
+
+    updateAIInsight();
+}
+
+function updateAIInsight(){
+    if(weaknesses.length===0){
+        document.getElementById("aiInsightText").innerText="No active weaknesses. Excellent.";
+        return;
+    }
+
+    let topicCount={};
+    weaknesses.forEach(w=>{
+        topicCount[w.topic]=(topicCount[w.topic]||0)+w.count;
+    });
+
+    let worstTopic=Object.keys(topicCount).reduce((a,b)=>topicCount[a]>topicCount[b]?a:b);
+    document.getElementById("aiInsightText").innerHTML= `You are weakest in <b>${worstTopic}</b>. Revise immediately.`;
+}
+
+let currentId=null;
+function openModal(id){
+    let w=weaknesses.find(x=>x.id===id);
+    currentId=id;
+    document.getElementById("modalQuestion").innerText=w.question;
+    document.getElementById("modalExplanation").innerText=w.explanation;
+    document.getElementById("detail-modal").classList.remove("hidden");
+}
+
+function closeModal(){
+    document.getElementById("detail-modal").classList.add("hidden");
+}
+
+function markResolved(){
+    resolve(currentId);
+    closeModal();
+}
+
+function resolve(id){
+    weaknesses=weaknesses.filter(w=>w.id!==id);
+    saveData();
+    renderTable();
+}
+
+document.getElementById("searchBox").addEventListener("input",renderTable);
+document.getElementById("subjectFilter").addEventListener("change",renderTable);
+document.getElementById("errorFilter").addEventListener("change",renderTable);
+
+renderTable();
+</script>
+
+</body>
+</html>

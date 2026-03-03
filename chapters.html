@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | Mastery Vault</title>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+--bg:#0b0f18;
+--surface:rgba(255,255,255,0.04);
+--border:rgba(255,255,255,0.08);
+--phy:#00d2ff;
+--chem:#b026ff;
+--bio:#2ee59d;
+--text-dim:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Inter,system-ui}
+body{
+background:radial-gradient(circle at 20% 20%,#111827,#0b0f18 60%);
+color:#fff;
+padding:40px;
+}
+
+/* ✅ BACK BUTTON STYLE */
+.back-nav {
+    margin-bottom: 20px;
+}
+.btn-back {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: 0.3s;
+}
+.btn-back:hover {
+    background: #fff;
+    color: #000;
+}
+
+.vault-hero {
+display:flex;
+justify-content:space-between;
+align-items:flex-end;
+margin-bottom:40px;
+border-bottom:1px solid var(--border);
+padding-bottom:25px;
+}
+.stat-badge{
+background:var(--surface);
+border:1px solid var(--border);
+padding:15px 25px;
+border-radius:18px;
+}
+.nav-wrapper{
+display:flex;
+justify-content:center;
+margin-bottom:50px;
+}
+.sub-nav{
+background:rgba(255,255,255,0.05);
+padding:8px;
+border-radius:20px;
+border:1px solid var(--border);
+display:flex;
+gap:8px;
+}
+.pill{
+padding:12px 35px;
+border:none;
+background:transparent;
+color:var(--text-dim);
+font-weight:700;
+border-radius:14px;
+cursor:pointer;
+}
+.pill.active{color:#000}
+.pill.active[data-sub="Physics"]{background:var(--phy)}
+.pill.active[data-sub="Chemistry"]{background:var(--chem);color:#fff}
+.pill.active[data-sub="Biology"]{background:var(--bio);color:#000}
+.class-header{
+font-size:1.6rem;
+margin:50px 0 25px;
+}
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+gap:25px;
+}
+.chapter-card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:22px;
+padding:25px;
+transition:.3s;
+}
+.chapter-card:hover{
+transform:translateY(-6px);
+background:rgba(255,255,255,0.07);
+}
+.prog-label{
+display:flex;
+justify-content:space-between;
+font-size:.75rem;
+margin:15px 0 6px;
+color:var(--text-dim);
+}
+.bar-outer{
+height:7px;
+background:rgba(0,0,0,.4);
+border-radius:10px;
+overflow:hidden;
+}
+.bar-inner{
+height:100%;
+border-radius:10px;
+transition:width 1s ease;
+}
+.card-actions{
+display:grid;
+grid-template-columns:1fr 1fr 50px;
+gap:10px;
+margin-top:20px;
+}
+.btn-card{
+padding:10px;
+border-radius:12px;
+border:1px solid var(--border);
+background:rgba(255,255,255,.05);
+color:#fff;
+font-weight:600;
+cursor:pointer;
+}
+.btn-card:hover{
+background:#fff;
+color:#000;
+}
+.check-circle{
+height:40px;
+width:40px;
+border-radius:12px;
+border:none;
+background:rgba(255,255,255,.05);
+color:var(--text-dim);
+cursor:pointer;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+.check-circle.active{
+background:var(--bio);
+color:#000;
+}
+</style>
+</head>
+<body>
+
+<div class="back-nav">
+    <a href="index.html" class="btn-back">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+</div>
+
+<header class="vault-hero">
+<div>
+<h1>MASTERY VAULT</h1>
+</div>
+<div class="stat-badge">
+<div style="font-size:.7rem;color:var(--text-dim)">OVERALL COMPLETION</div>
+<div id="global-per" style="font-size:2rem;font-weight:800">0%</div>
+</div>
+</header>
+
+<div class="nav-wrapper">
+<nav class="sub-nav">
+<button class="pill active" data-sub="Biology" onclick="updateUI('Biology')">Biology</button>
+<button class="pill" data-sub="Physics" onclick="updateUI('Physics')">Physics</button>
+<button class="pill" data-sub="Chemistry" onclick="updateUI('Chemistry')">Chemistry</button>
+</nav>
+</div>
+
+<h2 class="class-header">Class 11</h2>
+<div class="grid" id="grid-11"></div>
+
+<h2 class="class-header">Class 12</h2>
+<div class="grid" id="grid-12"></div>
+
+<script>
+
+const pdfMap = {
+"The Living World":"The Living World_Shobhit Nirwan.pdf",
+"Biological Classification":"Biological Classification_Shobhit Nirwan.pdf",
+"Plant Kingdom":"Plant Kingdom_Shobhit Nirwan.pdf",
+"Animal Kingdom":"Animal Kingdom_Shobhit Nirwan.pdf",
+"Morphology of Flowering Plants":"Morphology of Flowering Plants_Shobhit Nirwan.pdf",
+"Anatomy of Flowering Plants":"Anatomy of Flowering Plants_Shobhit Nirwan.pdf",
+"Structural Organisation in Animals":"Structural Organisation in Animals_Shobhit Nirwan.pdf",
+"Cell – The Unit of Life":"Cell-The Unit of Life_Shobhit Nirwan (1).pdf",
+"Biomolecules":"Biomolecules_Shobhit Nirwan.pdf",
+"Cell Cycle and Cell Division":"Cell Cycle and Cell Division_Shobhit Nirwan.pdf",
+"Transport in Plants":"Transport in Plants_Shobhit Nirwan.pdf",
+"Mineral Nutrition":"Mineral Nutrition_Shobhit Nirwan.pdf",
+"Photosynthesis in Higher Plants":"Photosynthesis in Higher Plants_Shobhit Nirwan.pdf",
+"Respiration in Plants":"Respiration in Plants_Shobhit Nirwan.pdf",
+"Plant Growth and Development":"Plant Growth and Development_Shobhit Nirwan.pdf",
+"Digestion and Absorption":"Digestion and Absorption_Shobhit Nirwan.pdf",
+"Breathing and Exchange of Gases":"Breathing and Exchange of Gases_Shobhit Nirwan.pdf",
+"Body Fluids and Circulation":"Body Fluids and Circulation_Shobhit Nirwan.pdf",
+"Excretory Products and Their Elimination":"Excretory Products and Their Elimination_Shobhit Nirwan.pdf",
+"Locomotion and Movement":"Locomotion and Movement_Shobhit Nirwan.pdf",
+"Neural Control and Coordination":"Neural Control and Coordination_Shobhit Nirwan.pdf",
+"Chemical Coordination and Integration":"Chemical Coordination and Integration_Shobhit Nirwan.pdf"
+};
+
+/* ===== LOAD OR CREATE DATABASE ===== */
+
+let savedData = JSON.parse(localStorage.getItem("neetChaptersData"));
+
+if(!savedData){
+savedData = [];
+let idCounter = 1;
+Object.keys(pdfMap).forEach(name=>{
+savedData.push({
+id:idCounter++,
+name:name,
+subject:"Biology",
+class:"11",
+progress:0
+});
+});
+localStorage.setItem("neetChaptersData",JSON.stringify(savedData));
+}
+
+const neetDatabase = { chapters: savedData };
+
+const colors={
+Physics:'#00d2ff',
+Chemistry:'#b026ff',
+Biology:'#2ee59d'
+};
+
+function saveDB(){
+localStorage.setItem("neetChaptersData",
+JSON.stringify(neetDatabase.chapters));
+}
+
+/* ===== OPEN FUNCTIONS ===== */
+
+function openPDF(subject,name){
+let fileName = pdfMap[name];
+if(!fileName){ alert("PDF not mapped"); return; }
+window.open("pdf/biology/"+fileName,"_blank");
+}
+
+function startPractice(subject,chapter){
+localStorage.setItem("selectedSubject",subject);
+localStorage.setItem("selectedChapter",chapter);
+window.location.href="chapter_mcq.html";
+}
+
+/* ===== TOGGLE COMPLETE (FIXED) ===== */
+
+function toggleComplete(id){
+let ch = neetDatabase.chapters.find(c=>c.id===id);
+if(!ch) return;
+
+ch.progress = ch.progress===100 ? 0 : 100;
+
+saveDB();
+updateUI(currentSubject);
+}
+
+/* ===== GLOBAL COMPLETION FIX ===== */
+
+function updateGlobalPercent(){
+let total = neetDatabase.chapters.length;
+let completed = neetDatabase.chapters.filter(c=>c.progress===100).length;
+let percent = Math.round((completed/total)*100);
+document.getElementById("global-per").innerText = percent+"%";
+}
+
+let currentSubject="Biology";
+
+function updateUI(subject){
+currentSubject=subject;
+document.querySelectorAll(".pill").forEach(p=>p.classList.remove("active"));
+const targetPill = document.querySelector(`.pill[data-sub="${subject}"]`);
+if(targetPill) targetPill.classList.add("active");
+renderChapters(subject);
+updateGlobalPercent();
+}
+
+/* ===== RENDER (UNCHANGED STRUCTURE) ===== */
+
+function renderChapters(subject){
+const g11=document.getElementById("grid-11");
+g11.innerHTML="";
+
+neetDatabase.chapters.forEach(ch=>{
+if(ch.subject === subject) {
+const card=`
+<div class="chapter-card">
+<h3>${ch.name}</h3>
+<div class="prog-label">
+<span>Mastery</span>
+<span>${ch.progress}%</span>
+</div>
+<div class="bar-outer">
+<div class="bar-inner"
+style="width:${ch.progress}%;background:${colors[subject]}">
+</div>
+</div>
+<div class="card-actions">
+<button class="btn-card"
+onclick="openPDF('${ch.subject}','${ch.name}')">
+NOTES
+</button>
+
+<button class="btn-card"
+onclick="startPractice('${ch.subject}','${ch.name}')">
+PRACTICE
+</button>
+
+<button class="check-circle ${ch.progress===100?'active':''}"
+onclick="toggleComplete(${ch.id})">
+<i class="fas fa-check"></i>
+</button>
+</div>
+</div>
+`;
+g11.innerHTML+=card;
+}
+});
+}
+
+updateUI("Biology");
+
+</script>
+</body>
+</html>

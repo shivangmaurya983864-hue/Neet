@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | Command Center</title>
+
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* --- PRESERVED EXISTING STYLES --- */
+#fullscreenTimer { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000000; z-index: 9999; flex-direction: column; justify-content: center; align-items: center; }
+.flip-clock { display: flex; gap: 30px; align-items: center; }
+.flip-group { display: flex; flex-direction: column; align-items: center; }
+.flip-unit { background: #111111; color: #e5e7eb; font-family: 'Bebas Neue', sans-serif; font-size: 220px; padding: 0 20px; border-radius: 12px; line-height: 1; position: relative; min-width: 200px; text-align: center; overflow: hidden; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
+.flip-unit::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 3px; background: rgba(0,0,0,0.6); transform: translateY(-50%); z-index: 2; }
+.flip-label { font-family: 'Outfit', sans-serif; font-size: 14px; color: #444; text-transform: uppercase; margin-top: 20px; letter-spacing: 5px; }
+.close-fs { position: absolute; top: 30px; right: 40px; background: none; border: 1px solid #333; color: #666; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-family: 'Outfit'; transition: 0.3s; }
+.close-fs:hover { color: white; border-color: white; }
+.quote-overlay { margin-top: 60px; font-family: 'Outfit'; font-weight: 500; font-size: 24px; color: #ffffff; letter-spacing: 1px; }
+.quote-overlay span { color: #eab308; }
+
+.mood-tracker { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 15px; margin-top: 20px; }
+.mood-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1.5px; color: #64748b; margin-bottom: 12px; text-align: center; }
+.mood-icons { display: flex; justify-content: space-around; gap: 8px; }
+.mood-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid transparent; font-size: 1.4rem; padding: 10px; border-radius: 15px; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); flex: 1; }
+.mood-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-3px); }
+.mood-btn.active[data-mood="fire"] { background: rgba(255, 69, 0, 0.2); border-color: #ff4500; box-shadow: 0 0 10px rgba(255, 69, 0, 0.2); }
+.mood-btn.active[data-mood="happy"] { background: rgba(0, 255, 159, 0.2); border-color: #00ff9f; box-shadow: 0 0 10px rgba(0, 255, 159, 0.2); }
+.mood-btn.active[data-mood="low"] { background: rgba(139, 92, 246, 0.2); border-color: #8b5cf6; box-shadow: 0 0 10px rgba(139, 92, 246, 0.2); }
+.ai-mood-box { margin-top: 15px; padding: 10px; border-radius: 12px; font-size: 0.75rem; background: rgba(0, 0, 0, 0.2); color: #cbd5e1; line-height: 1.4; display: none; animation: fadeInMood 0.5s ease forwards; }
+@keyframes fadeInMood { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+.highlight { transition: color 0.5s ease; }
+
+/* --- NEW COMPONENT STYLES --- */
+.instruction-card { background: linear-gradient(135deg, #1e293b, #0f172a); border-left: 4px solid #3b82f6; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.05); }
+.warning-box { background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; padding: 12px; border-radius: 10px; margin-top: 10px; font-size: 0.85rem; color: #fca5a5; }
+.progress-bar-mini { height: 6px; background: #334155; border-radius: 10px; margin-top: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #00ff9f; width: 0%; transition: 0.5s; }
+.balance-meter { display: flex; height: 12px; border-radius: 10px; overflow: hidden; margin-top: 10px; background: #334155; }
+.meter-segment { height: 100%; }
+.burnout-alert { font-size: 0.7rem; padding: 4px 8px; border-radius: 4px; background: rgba(34, 197, 94, 0.2); color: #4ade80; font-weight: 700; margin-left: 10px; }
+.recall-btn { width: 100%; background: #f59e0b; color: #000; border: none; padding: 12px; border-radius: 10px; font-weight: 800; cursor: pointer; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
+.recall-btn:hover { background: #fbbf24; transform: scale(1.02); }
+</style>
+</head>
+
+<body>
+
+<div class="app-container">
+
+<aside class="sidebar">
+    <div class="logo">
+        <span class="logo-main">NEET</span>
+        <span class="logo-accent">OS</span>
+    </div>
+
+    <nav>
+        <ul class="nav-links">
+            <li class="active"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></li>
+            <li><a href="chapters.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="book-open"></i><span>100 Chapters</span></a></li>
+            <li><a href="revision.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="repeat"></i><span>Best Revision</span></a></li>
+            <li><a href="pyq_engine.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="target"></i><span>Warmup</span></a></li>
+            <li><a href="weakness.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="book-marked"></i><span>Mistake Journal</span></a></li>
+            <li><a href="analytics.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="bar-chart-3"></i><span>Analytics</span></a></li>
+            <li><a href="health.html" style="text-decoration:none; color:inherit; display:flex; align-items:center; gap:10px;"><i data-lucide="heart-pulse"></i><span>Health</span></a></li>
+        </ul>
+    </nav>
+
+    <div class="mood-tracker">
+        <p class="mood-title">AI Mental Sync</p>
+        <div class="mood-icons">
+            <button class="mood-btn" data-mood="fire" onclick="updateMood('fire')">🔥</button>
+            <button class="mood-btn" data-mood="happy" onclick="updateMood('happy')">🙂</button>
+            <button class="mood-btn" data-mood="low" onclick="updateMood('low')">😴</button>
+        </div>
+        <div id="aiMoodMsg" class="ai-mood-box"></div>
+    </div>
+</aside>
+
+<main class="main-content">
+<header class="dashboard-header">
+    <div>
+        <h1 style="display:flex; align-items:center;">Welcome Back, <span class="highlight" id="userName" style="margin-left:8px;">Divya</span> 
+            <span id="burnoutBadge" class="burnout-alert">Status: Optimal</span>
+        </h1>
+        <p class="discipline-warning">Target: <b>690+ NEET</b> | Current Avg: <b id="avgScore">580</b> | <span style="color:#ef4444">Gap: <span id="markGap">110</span> Marks</span></p>
+    </div>
+    <div class="streak-badge"><i data-lucide="flame"></i><span id="streakDays">12 Day Streak</span></div>
+</header>
+
+<section class="instruction-card">
+    <h3 style="margin-bottom:15px; font-size: 1rem; color: #60a5fa; display: flex; align-items: center; gap: 8px;">
+        <i data-lucide="map"></i> TODAY'S COMMANDS
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+        <div>
+            <span style="font-size:0.7rem; color:#94a3b8; text-transform: uppercase;">11th Recovery (Backlog)</span>
+            <p style="font-weight: 600; margin-top: 5px;">• Cell Cycle <br>• Mole Concept</p>
+        </div>
+        <div>
+            <span style="font-size:0.7rem; color:#94a3b8; text-transform: uppercase;">12th Running</span>
+            <p style="font-weight: 600; margin-top: 5px;">• Optics: Reflection</p>
+        </div>
+        <div>
+            <span style="font-size:0.7rem; color:#94a3b8; text-transform: uppercase;">MCQ Target (Real-time)</span>
+            <div class="progress-bar-mini"><div id="mcqProgress" class="progress-fill" style="width: 0%"></div></div>
+            <p id="mcqCountText" style="font-size: 0.65rem; margin-top:4px">0/100 Questions Today</p>
+        </div>
+    </div>
+</section>
+
+<section class="bottom-grid" style="margin-bottom:30px">
+    <div class="card">
+        <h3>🚀 Rapid Revision</h3>
+        <p style="opacity:.6;font-size:14px;margin:10px 0">High weight + weak topics only.</p>
+        <a href="revision.html" class="btn-primary" style="display:inline-block;text-decoration:none">Start</a>
+    </div>
+    <div class="card">
+        <h3>🧠 Concept Booster</h3>
+        <p style="opacity:.6;font-size:14px;margin:10px 0">10 high-yield MCQs in 5 min.</p>
+        <a href="pyq_engine.html" class="btn-secondary" style="display:inline-block;text-decoration:none">Practice</a>
+    </div>
+</section>
+
+<section class="top-grid">
+    <div class="card">
+        <h3>Focus Session</h3>
+        <div class="timer-display" id="timer">00:00:00</div>
+        <div class="timer-controls">
+            <button id="startBtn" class="btn-primary">Start</button>
+            <button id="pauseBtn" class="btn-secondary">Pause</button>
+            <button id="fsBtn" class="btn-secondary" title="Fullscreen Flip Clock"><i data-lucide="maximize"></i></button>
+            <button id="resetBtn" class="btn-danger">Reset</button>
+        </div>
+        <button class="recall-btn" onclick="startRecall()">
+            <i data-lucide="zap"></i> 5 MIN RAPID RECALL
+        </button>
+    </div>
+
+    <div class="card">
+        <h3>Performance & Balance</h3>
+        <div class="stat-item"><p>Today Study</p><h2 id="hrsStudy">0.0 <small>Hrs</small></h2></div>
+        
+        <div style="margin-top:15px;">
+            <p style="font-size:0.7rem; color:#94a3b8;">TIME DISTRIBUTION (B/C/P)</p>
+            <div class="balance-meter">
+                <div class="meter-segment" style="width: 50%; background: #00ff9f;" title="Bio"></div>
+                <div class="meter-segment" style="width: 30%; background: #3b82f6;" title="Chem"></div>
+                <div class="meter-segment" style="width: 20%; background: #ef4444;" title="Physics"></div>
+            </div>
+            <p style="font-size:0.65rem; color:#ef4444; margin-top:5px;">⚠️ Physics needs more time today.</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Syllabus Roadmap</h3>
+        <p style="font-size:0.8rem; margin-bottom: 5px;">Mastery Completion</p>
+        <div class="progress-bar-mini" style="height:12px;"><div id="syllabusBar" class="progress-fill" style="width: 0%"></div></div>
+        <p id="syllabusText" style="font-size:0.7rem; color:#94a3b8; margin-top:8px;">0% Syllabus Completed</p>
+        
+        <div style="margin-top:15px; border-top: 1px solid rgba(255,255,255,0.1); pt-10">
+            <p style="font-size:0.7rem; color:#94a3b8; margin-top:10px;">CONFIDENCE SCORE</p>
+            <h4 style="color:#00ff9f">🟢 Rising (Steady)</h4>
+        </div>
+    </div>
+</section>
+
+<section class="bottom-grid">
+    <div class="card">
+        <h3>📖 Next: Genetics</h3>
+        <div class="warning-box">
+            <i data-lucide="alert-triangle" size="14"></i> 
+            <b>Required 11th Topics:</b> Cell Division, Biomolecules.
+        </div>
+        <div style="margin-top:15px;">
+            <label class="checkbox-item"><input type="checkbox"> NCERT Reading</label>
+            <label class="checkbox-item"><input type="checkbox"> 50 PYQs</label>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>⚠️ Weakest Areas (Attack!)</h3>
+        <div id="weakList">
+             </div>
+        
+        <a href="weakness.html" style="display:block; margin-top:15px; font-size:0.8rem; color:#3b82f6; text-decoration:none;">
+            View Mistake Reflection Journal →
+        </a>
+    </div>
+</section>
+</main>
+</div>
+
+<div id="fullscreenTimer">
+    <button class="close-fs" id="closeFs">ESC TO EXIT</button>
+    <div class="flip-clock">
+        <div class="flip-group"><div class="flip-unit" id="fs-hr">00</div><div class="flip-label">Hours</div></div>
+        <div class="flip-group"><div class="flip-unit" id="fs-min">00</div><div class="flip-label">Minutes</div></div>
+        <div class="flip-group"><div class="flip-unit" id="fs-sec">00</div><div class="flip-label">Seconds</div></div>
+    </div>
+    <div class="quote-overlay">Be obsessed with "<span>Divya</span>"</div>
+</div>
+
+<script>
+lucide.createIcons();
+
+/* ================= GLOBAL CONFIG ================= */
+
+const TARGET_SCORE = 690;
+const DAILY_MCQ_TARGET = 100;
+
+/* ================= REAL STREAK SYSTEM ================= */
+
+function updateStreak() {
+    const today = new Date().toDateString();
+    let streakData = JSON.parse(localStorage.getItem("streakData")) || {
+        lastDate: null,
+        streak: 0
+    };
+
+    if (streakData.lastDate !== today) {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (streakData.lastDate === yesterday.toDateString()) {
+            streakData.streak += 1;
+        } else {
+            streakData.streak = 1;
+        }
+
+        streakData.lastDate = today;
+        localStorage.setItem("streakData", JSON.stringify(streakData));
+    }
+
+    document.getElementById("streakDays").innerText =
+        `${streakData.streak} Day Streak`;
+}
+
+/* ================= REAL MCQ PROGRESS ================= */
+
+function updateMCQProgress() {
+    const mcqToday = parseInt(localStorage.getItem("mcqToday")) || 0;
+    const percent = Math.min((mcqToday / DAILY_MCQ_TARGET) * 100, 100);
+
+    document.getElementById("mcqProgress").style.width = percent + "%";
+    document.getElementById("mcqCountText").innerText =
+        `${mcqToday}/${DAILY_MCQ_TARGET} Questions Today`;
+}
+
+/* ================= REAL SYLLABUS PROGRESS ================= */
+
+function updateSyllabus() {
+    const data = JSON.parse(localStorage.getItem("neetChaptersData")) || [];
+
+    if (data.length === 0) return;
+
+    const completed = data.filter(c => c.progress === 100).length;
+    const percent = Math.round((completed / data.length) * 100);
+
+    document.getElementById("syllabusBar").style.width = percent + "%";
+    document.getElementById("syllabusText").innerText =
+        `${percent}% Syllabus Mastered (${completed}/${data.length} Chapters)`;
+}
+
+/* ================= REAL MOCK ANALYTICS ================= */
+
+function updateMockAnalytics() {
+    const scores = JSON.parse(localStorage.getItem("mockScores")) || [];
+
+    let avg = 0;
+    if (scores.length > 0) {
+        avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+    }
+
+    document.getElementById("avgScore").innerText = avg;
+    document.getElementById("markGap").innerText =
+        Math.max(0, TARGET_SCORE - avg);
+
+    // Confidence Logic (based on trend)
+    let confidenceText = "🔴 Needs Improvement";
+    let confidenceColor = "#ef4444";
+
+    if (scores.length >= 2) {
+        const last = scores[scores.length - 1];
+        const prev = scores[scores.length - 2];
+
+        if (last > prev) {
+            confidenceText = "🟢 Rising";
+            confidenceColor = "#00ff9f";
+        } else if (last === prev) {
+            confidenceText = "🟡 Stable";
+            confidenceColor = "#facc15";
+        }
+    }
+
+    document.querySelector("#syllabusText")
+        .parentElement
+        .querySelector("h4").innerText = confidenceText;
+
+    document.querySelector("#syllabusText")
+        .parentElement
+        .querySelector("h4").style.color = confidenceColor;
+}
+
+/* ================= REAL WEAK AREAS ================= */
+
+function updateWeakAreas() {
+    const weaknessData =
+        JSON.parse(localStorage.getItem("weaknessData")) || [];
+
+    const container = document.getElementById("weakList");
+
+    if (weaknessData.length === 0) {
+        container.innerHTML =
+            '<p style="font-size:0.7rem; color:#94a3b8">No mistakes logged yet.</p>';
+        return;
+    }
+
+    container.innerHTML = "";
+
+    weaknessData
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3)
+        .forEach(item => {
+            const div = document.createElement("div");
+            div.style.background = "rgba(239,68,68,0.05)";
+            div.style.padding = "6px";
+            div.style.marginBottom = "5px";
+            div.innerHTML =
+                `<span>${item.topic}</span> 
+                 <span style="float:right">Errors: ${item.count}</span>`;
+            container.appendChild(div);
+        });
+}
+
+/* ================= REAL SUBJECT TIME DISTRIBUTION ================= */
+
+function updateSubjectBalance() {
+    const bio = parseInt(localStorage.getItem("bioTime")) || 0;
+    const chem = parseInt(localStorage.getItem("chemTime")) || 0;
+    const phy = parseInt(localStorage.getItem("phyTime")) || 0;
+
+    const total = bio + chem + phy;
+
+    if (total === 0) return;
+
+    const bioP = (bio / total) * 100;
+    const chemP = (chem / total) * 100;
+    const phyP = (phy / total) * 100;
+
+    const segments = document.querySelectorAll(".meter-segment");
+
+    segments[0].style.width = bioP + "%";
+    segments[1].style.width = chemP + "%";
+    segments[2].style.width = phyP + "%";
+
+    if (phyP < 25) {
+        segments[2].style.background = "#ef4444";
+    }
+}
+
+/* ================= STUDY TIMER LOGIC (UPDATED) ================= */
+
+let seconds = parseInt(localStorage.getItem("studySeconds")) || 0;
+let timerInterval = null;
+
+function updateTimerDisplay() {
+    let h = Math.floor(seconds / 3600);
+    let m = Math.floor((seconds % 3600) / 60);
+    let s = seconds % 60;
+
+    const hStr = String(h).padStart(2,"0");
+    const mStr = String(m).padStart(2,"0");
+    const sStr = String(s).padStart(2,"0");
+
+    // Normal Timer Update
+    document.getElementById("timer").innerText = `${hStr}:${mStr}:${sStr}`;
+    document.getElementById("hrsStudy").innerHTML = `${(seconds / 3600).toFixed(1)} <small>Hrs</small>`;
+
+    // Fullscreen Flip Clock Update
+    document.getElementById("fs-hr").innerText = hStr;
+    document.getElementById("fs-min").innerText = mStr;
+    document.getElementById("fs-sec").innerText = sStr;
+}
+
+document.getElementById("startBtn").onclick = () => {
+    if (timerInterval) return;
+    timerInterval = setInterval(() => {
+        seconds++;
+        localStorage.setItem("studySeconds", seconds);
+        updateTimerDisplay();
+    }, 1000);
+};
+
+document.getElementById("pauseBtn").onclick = () => {
+    clearInterval(timerInterval);
+    timerInterval = null;
+};
+
+document.getElementById("resetBtn").onclick = () => {
+    if(!confirm("Bhai, timer reset kar dein?")) return;
+    clearInterval(timerInterval);
+    timerInterval = null;
+    seconds = 0;
+    localStorage.setItem("studySeconds", 0);
+    updateTimerDisplay();
+};
+
+/* ================= FULLSCREEN LOGIC (NEWLY FIXED) ================= */
+
+const fsOverlay = document.getElementById('fullscreenTimer');
+
+document.getElementById('fsBtn').addEventListener('click', () => {
+    fsOverlay.style.display = 'flex';
+    if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+    }
+});
+
+document.getElementById('closeFs').addEventListener('click', () => {
+    fsOverlay.style.display = 'none';
+    if (document.fullscreenElement) {
+        document.exitFullscreen();
+    }
+});
+
+// ESC Key to close
+document.addEventListener('keydown', (e) => {
+    if (e.key === "Escape") {
+        fsOverlay.style.display = 'none';
+    }
+});
+
+function startRecall() {
+    alert('Bhai, aankhein band karo aur jo pichle 1 ghante mein padha hai ushe dimaag mein chalao! 5 minute baad milte hain.');
+}
+
+/* ================= INITIAL LOAD ================= */
+
+updateStreak();
+updateMCQProgress();
+updateSyllabus();
+updateMockAnalytics();
+updateWeakAreas();
+updateSubjectBalance();
+updateTimerDisplay();
+
+</script>
+
+</body>
+</html>

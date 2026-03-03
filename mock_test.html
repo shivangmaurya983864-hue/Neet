@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET-OS | Elite Mock Engine (Full View)</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root {
+    --bg: #020617;
+    --panel: #0f172a;
+    --glass: rgba(255, 255, 255, 0.03);
+    --border: rgba(255, 255, 255, 0.1);
+    --primary: #3b82f6;
+    --success: #10b981;
+    --danger: #ef4444;
+    --orange: #f59e0b;
+    --text: #f8fafc;
+    --dim: #94a3b8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Plus Jakarta Sans',sans-serif; }
+
+body {
+    background: radial-gradient(circle at 0% 0%, #1e293b 0%, #020617 100%);
+    color: var(--text);
+    height:100vh;
+    overflow:hidden;
+}
+
+.wrapper { display:grid; grid-template-columns:1fr 320px; height:100vh; }
+
+.left { display:flex; flex-direction:column; height:100vh; }
+
+.topbar {
+    padding:12px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(15,23,42,0.9);
+    border-bottom:1px solid var(--border);
+}
+
+.btn-back {
+    color:var(--dim);
+    text-decoration:none;
+    font-size:0.85rem;
+    font-weight:600;
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.timer-box {
+    background:rgba(239,68,68,0.1);
+    border:1px solid rgba(239,68,68,0.2);
+    padding:6px 16px;
+    border-radius:10px;
+}
+
+#clock { font-size:1.2rem; font-weight:800; color:var(--danger); font-family:monospace; }
+
+.question-container {
+    flex:1;
+    padding:25px 50px;
+    overflow-y:auto;
+}
+
+.q-header { display:flex; align-items:center; gap:10px; margin-bottom:15px; }
+.q-badge { background:var(--primary); padding:4px 10px; border-radius:6px; font-weight:800; font-size:0.7rem; }
+
+.q-text {
+    font-size:1.3rem;
+    font-weight:600;
+    line-height:1.4;
+    margin-bottom:20px;
+    border-left:4px solid var(--primary);
+    padding-left:15px;
+}
+
+.options-list { display:flex; flex-direction:column; gap:10px; }
+
+.option-card {
+    background:var(--glass);
+    border:1px solid var(--border);
+    padding:14px 20px;
+    border-radius:12px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:15px;
+    transition:0.2s;
+}
+
+.option-card:hover { border-color:var(--primary); }
+
+.option-card.selected {
+    background:rgba(59,130,246,0.15);
+    border-color:var(--primary);
+}
+
+.opt-idx {
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:2px solid var(--border);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:800;
+    font-size:0.8rem;
+}
+
+.option-card.selected .opt-idx {
+    background:var(--primary);
+    border-color:var(--primary);
+    color:white;
+}
+
+.action-bar {
+    padding:15px 30px;
+    background:rgba(15,23,42,0.95);
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+}
+
+.btn {
+    padding:12px 25px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+}
+
+.btn-prev { background:transparent; color:var(--dim); border:1px solid var(--border); }
+.btn-review { background:rgba(245,158,11,0.15); color:var(--orange); border:1px solid var(--orange); }
+.btn-next { background:var(--primary); color:white; }
+
+.right {
+    background:var(--panel);
+    border-left:1px solid var(--border);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+}
+
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+
+.stat-mini {
+    background:var(--glass);
+    padding:8px;
+    border-radius:8px;
+    text-align:center;
+    border:1px solid var(--border);
+}
+
+.palette-wrap { flex:1; overflow-y:auto; margin-bottom:15px; }
+.palette-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+
+.p-box {
+    aspect-ratio:1;
+    background:#1e293b;
+    border-radius:6px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.75rem;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.p-box.active { border:2px solid var(--primary); }
+.p-box.done { background:var(--success); color:white; }
+.p-box.rev { background:var(--orange); color:white; }
+
+.submit-btn {
+    width:100%;
+    padding:15px;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--danger),#991b1b);
+    color:white;
+    font-weight:800;
+    border:none;
+    cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+<div class="left">
+<div class="topbar">
+<a href="index.html" class="btn-back"><i class="fas fa-chevron-left"></i> Dashboard</a>
+<div class="timer-box"><div id="clock">03:00:00</div></div>
+</div>
+
+<div class="question-container">
+<div class="q-header">
+<div class="q-badge" id="q-label">Q-1</div>
+</div>
+
+<div class="q-text" id="q-text"></div>
+<div class="options-list" id="opt-list"></div>
+</div>
+
+<div class="action-bar">
+<button class="btn btn-prev" onclick="move(-1)">Previous</button>
+<div style="display:flex; gap:10px;">
+<button class="btn btn-review" onclick="setMode('rev')">Mark for Review</button>
+<button class="btn btn-next" onclick="setMode('done')">Save & Next</button>
+</div>
+</div>
+</div>
+
+<div class="right">
+<div class="stats-grid">
+<div class="stat-mini"><b id="s-done" style="color:var(--success)">0</b><small>Done</small></div>
+<div class="stat-mini"><b id="s-rev" style="color:var(--orange)">0</b><small>Review</small></div>
+</div>
+
+<div class="palette-wrap">
+<div class="palette-grid" id="palette"></div>
+</div>
+
+<button class="submit-btn" onclick="submit()">SUBMIT TEST</button>
+</div>
+</div>
+
+<script>
+const questions = [
+{ q:"Which enzyme is used to join DNA fragments?", o:["Ligase","Polymerase","Endonuclease","Helicase"], correct:0 },
+{ q:"The value of acceleration due to gravity is maximum at?", o:["Equator","Poles","Center of Earth","Surface"], correct:1 },
+{ q:"Which of the following is a neutral oxide?", o:["NO2","CO","SiO2","ZnO"], correct:1 }
+];
+
+const TOTAL = questions.length;
+
+let curr = 0;
+let states = new Array(TOTAL).fill(null);
+let answers = new Array(TOTAL).fill(null);
+let timerInterval;
+
+/* LOAD */
+function load(i){
+if(i<0 || i>=TOTAL) return;
+curr=i;
+
+document.getElementById("q-label").innerText=`Q-${i+1}`;
+document.getElementById("q-text").innerText=questions[i].q;
+
+const list=document.getElementById("opt-list");
+list.innerHTML="";
+
+questions[i].o.forEach((opt,index)=>{
+const selected = answers[i]===index?"selected":"";
+list.innerHTML+=`
+<div class="option-card ${selected}" onclick="select(${index})">
+<div class="opt-idx">${String.fromCharCode(65+index)}</div>
+<div>${opt}</div>
+</div>`;
+});
+
+renderPalette();
+}
+
+/* SELECT */
+function select(index){
+answers[curr]=index;
+load(curr);
+}
+
+/* MODE */
+function setMode(mode){
+if(answers[curr]===null) return;
+states[curr]=mode;
+updateStats();
+if(curr<TOTAL-1) load(curr+1);
+}
+
+/* MOVE */
+function move(step){ load(curr+step); }
+
+/* PALETTE */
+function renderPalette(){
+const grid=document.getElementById("palette");
+grid.innerHTML="";
+for(let i=0;i<TOTAL;i++){
+let box=document.createElement("div");
+box.className=`p-box ${i===curr?'active':''} ${states[i]||''}`;
+box.innerText=i+1;
+box.onclick=()=>load(i);
+grid.appendChild(box);
+}
+}
+
+/* STATS */
+function updateStats(){
+document.getElementById("s-done").innerText=
+states.filter(s=>s==="done").length;
+document.getElementById("s-rev").innerText=
+states.filter(s=>s==="rev").length;
+}
+
+/* TIMER */
+function startTimer(sec){
+clearInterval(timerInterval);
+timerInterval=setInterval(()=>{
+if(sec<=0){
+clearInterval(timerInterval);
+alert("Time Up!");
+submit();
+return;
+}
+sec--;
+let h=Math.floor(sec/3600);
+let m=Math.floor((sec%3600)/60);
+let s=sec%60;
+document.getElementById("clock").innerText=
+`${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+},1000);
+}
+
+/* SUBMIT */
+function submit(){
+clearInterval(timerInterval);
+
+let correct=0;
+for(let i=0;i<TOTAL;i++){
+if(answers[i]===questions[i].correct) correct++;
+}
+
+let score=correct*4;
+
+let scores=JSON.parse(localStorage.getItem("mockScores"))||[];
+scores.push(score);
+if(scores.length>10) scores.shift();
+localStorage.setItem("mockScores",JSON.stringify(scores));
+
+alert("Score: "+score);
+window.location.href="index.html";
+}
+
+load(0);
+startTimer(3*60*60);
+
+</script>
+
+</body>
+</html>

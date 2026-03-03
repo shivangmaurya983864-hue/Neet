@@ -1,0 +1,385 @@
+/* =========================
+   NEET-OS PREMIUM FINAL
+========================= */
+
+:root {
+  --bg: #0f172a;
+  --sidebar: #0b1220;
+  --card: rgba(255,255,255,0.05);
+  --border: rgba(255,255,255,0.08);
+  --primary: #00ff9f;
+  --secondary: #3b82f6;
+  --danger: #ef4444;
+  --warning: #f59e0b;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+}
+
+body {
+  background: radial-gradient(circle at 20% 20%, #1e293b, #0f172a 60%);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* =========================
+   SIDEBAR (FIXED + SCROLLABLE)
+========================= */
+
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0b1220, #0a1626);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  border-right: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.logo-main { color: white; }
+.logo-accent { color: var(--primary); }
+
+/* Scrollable middle area */
+.sidebar nav {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* Custom Scrollbar */
+.sidebar nav::-webkit-scrollbar {
+  width: 6px;
+}
+.sidebar nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 10px;
+}
+
+.nav-links {
+  list-style: none;
+}
+
+.nav-links li {
+  margin-bottom: 14px;
+}
+
+.nav-links a,
+.nav-links li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 10px;
+  transition: 0.25s ease;
+  cursor: pointer;
+}
+
+.nav-links a:hover,
+.nav-links li.active {
+  background: rgba(255,255,255,0.06);
+  color: white;
+}
+
+.nav-links a:hover i,
+.nav-links li.active i {
+  color: var(--primary);
+}
+
+/* Mood Tracker pinned bottom */
+.mood-tracker {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.mood-title {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.mood-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.mood-btn {
+  background: var(--card);
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.mood-btn:hover {
+  background: var(--primary);
+  color: black;
+}
+
+/* =========================
+   MAIN CONTENT
+========================= */
+
+.main-content {
+  flex: 1;
+  margin-left: 260px; /* IMPORTANT FIX */
+  padding: 40px;
+  min-height: 100vh;
+}
+
+/* HEADER */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.welcome h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.highlight { color: var(--primary); }
+
+.discipline-warning {
+  font-size: 14px;
+  margin-top: 8px;
+  color: var(--muted);
+}
+
+.push {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card);
+  padding: 10px 16px;
+  border-radius: 30px;
+  border: 1px solid var(--border);
+}
+
+/* =========================
+   GRID SYSTEM
+========================= */
+
+.top-grid,
+.bottom-grid {
+  display: grid;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.top-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.bottom-grid {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+  padding: 25px;
+  border-radius: 18px;
+  transition: 0.25s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.15);
+}
+
+/* =========================
+   TIMER
+========================= */
+
+.timer-display {
+  font-size: 36px;
+  font-weight: 600;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.25s ease;
+}
+
+.btn-primary { background: var(--primary); color: black; }
+.btn-secondary { background: var(--secondary); color: white; }
+.btn-danger { background: var(--danger); color: white; }
+
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-danger:hover {
+  transform: scale(1.05);
+}
+
+.focus-score {
+  margin-top: 18px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.score-value {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.stats-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-item h2 {
+  font-size: 28px;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 15px 0;
+}
+
+/* =========================
+   CHECKLIST
+========================= */
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.checkbox-item input {
+  accent-color: var(--primary);
+}
+
+.rest-message {
+  margin-top: 15px;
+  color: var(--primary);
+  font-size: 14px;
+}
+
+/* =========================
+   PRIORITY ENGINE
+========================= */
+
+.priority-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.priority-item.critical { background: rgba(239,68,68,0.15); }
+.priority-item.medium { background: rgba(245,158,11,0.15); }
+.priority-item.strong { background: rgba(34,197,94,0.15); }
+
+.priority-tag {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* =========================
+   POPUP
+========================= */
+
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: #111827;
+  padding: 40px;
+  border-radius: 18px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.hidden { display: none; }
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 900px) {
+
+  .sidebar {
+    position: absolute;
+    left: -100%;
+  }
+
+  .main-content {
+    margin-left: 0;
+    padding: 25px;
+  }
+
+}

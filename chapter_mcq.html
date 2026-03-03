@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEET Premium Exam Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --nta-blue: #1a365d;
+            --accent-gold: #fbbf24;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --glass: rgba(255, 255, 255, 0.95);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            background: #f1f5f9; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh;
+            color: #1e293b;
+        }
+
+        /* Top Bar - Premium Dark */
+        .top-header { 
+            background: var(--nta-blue); 
+            color: white; 
+            padding: 12px 30px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        /* --- NEW BACK LINK STYLE --- */
+        .back-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .back-link:hover { color: white; }
+
+        .timer-box {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 20px;
+            border-radius: 50px;
+            border: 1px solid var(--accent-gold);
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 1px;
+        }
+
+        .main-layout { display: flex; flex: 1; overflow: hidden; }
+
+        /* Left Side: Question Paper */
+        .question-section { 
+            flex: 3; 
+            padding: 40px; 
+            overflow-y: auto; 
+            background: white;
+            box-shadow: inset -10px 0 20px rgba(0,0,0,0.02);
+        }
+
+        .q-badge {
+            background: var(--nta-blue);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .q-text { font-size: 1.25rem; font-weight: 600; line-height: 1.6; margin-bottom: 30px; }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 15px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .option-label:hover { border-color: var(--nta-blue); background: #f8fafc; }
+        
+        input[type="radio"]:checked + .option-content { font-weight: 700; }
+        .option-label.selected { 
+            border-color: var(--nta-blue); 
+            background: #eff6ff;
+            box-shadow: 0 4px 12px rgba(36, 70, 124, 0.1);
+        }
+
+        /* Right Side: Sidebar */
+        .palette-section { 
+            flex: 1; 
+            background: #f8fafc; 
+            border-left: 1px solid #e2e8f0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column;
+            max-width: 350px;
+        }
+
+        /* SUBMIT BUTTON AT TOP OF SIDEBAR */
+        .submit-container {
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-submit-main {
+            width: 100%;
+            padding: 15px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.3);
+            transition: 0.3s;
+        }
+
+        /* --- NEW EXIT BUTTON STYLE --- */
+        .btn-exit {
+            width: 100%;
+            padding: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            text-align: center;
+        }
+        .btn-exit:hover { background: #e2e8f0; color: var(--danger); }
+
+        .btn-submit-main:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: white;
+        }
+
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(5, 1fr); 
+            gap: 10px; 
+            margin-top: 15px; 
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .grid-item { 
+            aspect-ratio: 1;
+            border: 1px solid #cbd5e1; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; background: white; border-radius: 8px; font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .grid-item.answered { background: var(--success); color: white; border: none; }
+        .grid-item.not-answered { background: var(--danger); color: white; border: none; }
+        .grid-item.active { outline: 3px solid var(--accent-gold); outline-offset: 2px; }
+
+        /* Bottom Controls */
+        .footer-controls { 
+            background: white; 
+            padding: 20px 40px; 
+            display: flex; 
+            gap: 15px; 
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+        }
+
+        .btn-action { 
+            padding: 12px 25px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            border: 1px solid #cbd5e1;
+            transition: 0.2s;
+        }
+
+        .btn-primary { background: var(--nta-blue); color: white; border: none; }
+        .btn-secondary { background: white; color: var(--nta-blue); }
+        .btn-primary:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="top-header">
+    <div style="display:flex; align-items:center; gap:25px">
+        <a href="index.html" class="back-link"><i class="fas fa-home"></i> Home</a>
+        <div style="background:var(--accent-gold); width:4px; height:30px; border-radius:10px"></div>
+        <span style="font-weight:700; letter-spacing:0.5px">NEET UG : <span id="chName">Chapter</span></span>
+    </div>
+    <div class="timer-box" id="timer">30:00</div>
+</div>
+
+<div class="main-layout">
+    <div class="question-section">
+        <div class="q-badge">PHYSICS / BIOLOGY</div>
+        <div id="qNumHeader" style="font-weight: 700; color: var(--nta-blue); margin-bottom: 5px;">Question 1</div>
+        <div id="questionDisplay"></div>
+    </div>
+
+    <div class="palette-section">
+        <div class="submit-container">
+            <button class="btn-submit-main" onclick="submitExam()">FINISH TEST</button>
+            <a href="index.html" class="btn-exit" onclick="return confirm('Test exit karein? Progress save nahi hogi!')">
+                <i class="fas fa-sign-out-alt"></i> Exit to Dashboard
+            </a>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-box" style="background:var(--success)">Ans: <span id="ansCount">0</span></div>
+            <div class="stat-box" style="background:var(--danger)">Left: <span id="leftCount">0</span></div>
+        </div>
+
+        <div style="font-weight:700; margin-bottom:10px; font-size:0.9rem">Question Palette</div>
+        <div class="grid-container" id="paletteGrid"></div>
+    </div>
+</div>
+
+<div class="footer-controls">
+    <button class="btn-action btn-secondary" onclick="clearResponse()">Clear Response</button>
+    <div style="margin-left: auto; display: flex; gap: 10px;">
+        <button class="btn-action btn-secondary" onclick="move(-1)">Previous</button>
+        <button class="btn-action btn-primary" onclick="move(1)">Save & Next</button>
+    </div>
+</div>
+
+<script src="data/biology_questions.js"></script>
+<script>
+    const chapter = localStorage.getItem("selectedChapter") || "The Living World";
+    let questions = biologyQuestions[chapter] || [];
+    let currentIdx = 0;
+    let userAnswers = new Array(questions.length).fill(null);
+    let visited = new Array(questions.length).fill(false);
+
+    document.getElementById("chName").innerText = chapter;
+
+    function init() {
+        showQuestion();
+        startTimer();
+    }
+
+    function showQuestion() {
+        visited[currentIdx] = true;
+        const q = questions[currentIdx];
+        document.getElementById("qNumHeader").innerText = `Question ${currentIdx + 1}`;
+        
+        let html = `<div class="q-text">${q.question}</div>`;
+        q.options.forEach((opt, i) => {
+            const isSelected = userAnswers[currentIdx] === i;
+            html += `
+                <div class="option-label ${isSelected ? 'selected' : ''}" onclick="saveAnswer(${i})">
+                    <input type="radio" name="option" style="margin-right:15px; transform:scale(1.3)" ${isSelected ? 'checked' : ''}>
+                    <span class="option-content">${opt}</span>
+                </div>
+            `;
+        });
+        document.getElementById("questionDisplay").innerHTML = html;
+        updateStats();
+        renderPalette();
+    }
+
+    function saveAnswer(val) {
+        userAnswers[currentIdx] = val;
+        showQuestion();
+    }
+
+    function clearResponse() {
+        userAnswers[currentIdx] = null;
+        showQuestion();
+    }
+
+    function move(step) {
+        let newIdx = currentIdx + step;
+        if(newIdx >= 0 && newIdx < questions.length) {
+            currentIdx = newIdx;
+            showQuestion();
+        }
+    }
+
+    function updateStats() {
+        const answered = userAnswers.filter(a => a !== null).length;
+        document.getElementById("ansCount").innerText = answered;
+        document.getElementById("leftCount").innerText = questions.length - answered;
+    }
+
+    function renderPalette() {
+        let html = "";
+        questions.forEach((_, i) => {
+            let statusClass = "";
+            if(userAnswers[i] !== null) statusClass = "answered";
+            else if(visited[i]) statusClass = "not-answered";
+            if(i === currentIdx) statusClass += " active";
+            html += `<div class="grid-item ${statusClass}" onclick="jumpTo(${i})">${i+1}</div>`;
+        });
+        document.getElementById("paletteGrid").innerHTML = html;
+    }
+
+    function jumpTo(i) { currentIdx = i; showQuestion(); }
+
+    function startTimer() {
+        let time = 30 * 60;
+        const timerEl = document.getElementById("timer");
+        const timerInt = setInterval(() => {
+            let m = Math.floor(time/60);
+            let s = time%60;
+            timerEl.innerText = `${m}:${s<10?'0':''}${s}`;
+            if(time <= 0) {
+                clearInterval(timerInt);
+                submitExam();
+            }
+            time--;
+        }, 1000);
+    }
+
+function submitExam() {
+    if(!confirm("Bhai, test submit kar dein? Pura result aur explanation milega!")) return;
+
+    localStorage.setItem("lastExamResults", JSON.stringify({
+        questions: questions,
+        answers: userAnswers
+    }));
+
+    let weaknessData = JSON.parse(localStorage.getItem("weaknessData")) || [];
+    questions.forEach((q, i) => {
+        if(userAnswers[i] !== q.answer){
+            let existing = weaknessData.find(w => w.question === q.question);
+            if(existing){
+                existing.count += 1;
+            } else {
+                weaknessData.push({
+                    id: Date.now() + i,
+                    question: q.question,
+                    topic: chapter,
+                    subject: "Biology",
+                    errorType: "Conceptual",
+                    count: 1,
+                    explanation: q.explanation || "Revise this concept properly."
+                });
+            }
+        }
+    });
+
+    localStorage.setItem("weaknessData", JSON.stringify(weaknessData));
+    window.location.href = "results.html";
+}
+
+    init();
+</script>
+</body>
+</html>

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Elite Vault | NEET-OS</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+:root{
+--accent:#00ffa3;
+--phy:#00d2ff;
+--chem:#ff9f43;
+--bio:#34c759;
+--card:rgba(255,255,255,.04);
+--border:rgba(255,255,255,.08);
+}
+
+body{
+margin:0;
+background:#07090f;
+color:#fff;
+font-family:system-ui;
+}
+
+.container{
+padding:40px;
+max-width:1500px;
+margin:auto;
+}
+
+/* BACK BUTTON STYLE */
+.top-nav {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 25px;
+}
+
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-back:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: var(--accent);
+    transform: translateX(-5px);
+}
+
+.btn-back i {
+    color: var(--accent);
+}
+
+h1 span{color:var(--accent)}
+
+.tabs{
+display:flex;
+gap:10px;
+margin:30px 0;
+}
+
+.tab{
+flex:1;
+padding:12px;
+border-radius:12px;
+border:1px solid var(--border);
+background:var(--card);
+cursor:pointer;
+font-weight:700;
+text-align:center;
+}
+
+.tab.active{
+background:var(--accent);
+color:#000;
+}
+
+.search-bar{
+margin:20px 0;
+}
+
+.search-bar input{
+width:100%;
+padding:14px;
+border-radius:12px;
+border:1px solid var(--border);
+background:var(--card);
+color:#fff;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+gap:20px;
+}
+
+.card{
+background:var(--card);
+padding:20px;
+border-radius:18px;
+border:1px solid var(--border);
+transition:.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+border-color:var(--accent);
+}
+
+.tag{
+font-size:10px;
+padding:4px 8px;
+border-radius:6px;
+display:inline-block;
+margin-bottom:8px;
+font-weight:700;
+}
+
+.tag-bio{background:rgba(52,199,89,.2);color:var(--bio)}
+.tag-chem{background:rgba(255,159,67,.2);color:var(--chem)}
+.tag-phy{background:rgba(0,210,255,.2);color:var(--phy)}
+
+.btn{
+background:var(--accent);
+border:none;
+padding:8px 16px;
+border-radius:8px;
+font-weight:700;
+cursor:pointer;
+color:#000;
+margin-top:8px;
+}
+
+.hidden{display:none}
+
+.formula-box{
+background:rgba(0,0,0,.5);
+padding:15px;
+border-radius:10px;
+margin-top:10px;
+color:var(--accent);
+text-align:center;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="top-nav">
+    <a href="index.html" class="btn-back">
+        <i class="fas fa-chevron-left"></i>
+        Dashboard
+    </a>
+</div>
+
+<h1>Elite <span>Vault</span></h1>
+<p style="opacity:.6">High Yield + Short Notes + Revision Control</p>
+
+<div class="tabs">
+<div class="tab active" onclick="switchTab('notes',this)">📚 Notes Vault</div>
+<div class="tab" onclick="switchTab('formula',this)">⚛ Formula</div>
+<div class="tab" onclick="switchTab('reaction',this)">🧪 Reactions</div>
+<div class="tab" onclick="switchTab('booster',this)">🚀 Booster</div>
+</div>
+
+<div class="search-bar">
+<input type="text" placeholder="Search chapter..." onkeyup="filterCards(this.value)">
+</div>
+
+<div id="notes">
+<div class="grid" id="notesGrid"></div>
+</div>
+
+<div id="formula" class="hidden">
+<div class="grid">
+<div class="card">
+<h3>Work Energy Theorem</h3>
+<div class="formula-box">W = ΔK</div>
+</div>
+<div class="card">
+<h3>Capacitance</h3>
+<div class="formula-box">C = ε₀A/d</div>
+</div>
+</div>
+</div>
+
+<div id="reaction" class="hidden">
+<div class="grid">
+<div class="card">
+<h3>Aldol Condensation</h3>
+<p>NaOH + α-H Aldehyde → β-Hydroxy Aldehyde</p>
+</div>
+</div>
+</div>
+
+<div id="booster" class="hidden">
+<div class="card" style="text-align:center">
+<h2>Rapid 30 MCQ Booster</h2>
+<p style="opacity:.6">5 Minute High Yield Revision</p>
+<button class="btn" onclick="alert('Booster Start')">Start Booster</button>
+</div>
+</div>
+
+</div>
+
+<script>
+
+const chapters = [];
+let id=1;
+
+function add(list,subject,className){
+list.forEach(name=>{
+chapters.push({id:id++,name,subject,className});
+});
+}
+
+/* ======================
+   CHAPTER LIST
+====================== */
+
+add(["The Living World","Biological Classification","Plant Kingdom","Animal Kingdom","Morphology of Flowering Plants","Anatomy of Flowering Plants","Structural Organisation in Animals","Cell – The Unit of Life","Biomolecules","Cell Cycle and Cell Division","Transport in Plants","Mineral Nutrition","Photosynthesis in Higher Plants","Respiration in Plants","Plant Growth and Development","Digestion and Absorption","Breathing and Exchange of Gases","Body Fluids and Circulation","Excretory Products and Their Elimination","Locomotion and Movement","Neural Control and Coordination","Chemical Coordination and Integration"],"Biology","11");
+
+add(["Some Basic Concepts of Chemistry","Structure of Atom","Classification of Elements and Periodicity","Chemical Bonding and Molecular Structure","Thermodynamics","Equilibrium","Redox Reactions","Organic Chemistry – Basic Principles and Techniques","Hydrocarbons","Hydrogen","The s-Block Elements","The p-Block Elements (Group 13 & 14)","States of Matter","Environmental Chemistry"],"Chemistry","11");
+
+add(["Physical World","Units and Measurements","Motion in a Straight Line","Motion in a Plane","Laws of Motion","Work, Energy and Power","System of Particles and Rotational Motion","Gravitation","Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties of Matter","Thermodynamics","Kinetic Theory","Oscillations","Waves"],"Physics","11");
+
+add(["Reproduction in Organisms","Sexual Reproduction in Flowering Plants","Human Reproduction","Reproductive Health","Principles of Inheritance and Variation","Molecular Basis of Inheritance","Evolution","Human Health and Disease","Strategies for Enhancement in Food Production","Microbes in Human Welfare","Biotechnology – Principles and Processes","Biotechnology and Its Applications","Organisms and Populations","Ecosystem","Biodiversity and Conservation","Environmental Issues"],"Biology","12");
+
+add(["The Solid State","Solutions","Electrochemistry","Chemical Kinetics","Surface Chemistry","The p-Block Elements","The d- and f-Block Elements","Coordination Compounds","Haloalkanes and Haloarenes","Alcohols, Phenols and Ethers","Aldehydes, Ketones and Carboxylic Acids","Amines","Biomolecules","Polymers","Chemistry in Everyday Life","General Principles and Processes of Isolation of Elements"],"Chemistry","12");
+
+add(["Electric Charges and Fields","Electrostatic Potential and Capacitance","Current Electricity","Moving Charges and Magnetism","Magnetism and Matter","Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics and Optical Instruments","Wave Optics","Dual Nature of Radiation and Matter","Atoms","Nuclei","Semiconductor Electronics"],"Physics","12");
+
+/* ======================
+   SMART PDF MATCH SYSTEM
+====================== */
+
+function openPDF(subject,name){
+
+// normalize chapter name
+let clean = name
+.toLowerCase()
+.replace(/–/g,'')
+.replace(/[^a-z0-9\s]/g,'')
+.replace(/\s+/g,' ')
+.trim();
+
+let words = clean.split(" ");
+
+let files = [
+"the living world.pdf",
+"biological classification.pdf",
+"animal kingdom.pdf",
+"plant kingdom.pdf",
+"morphology of flowering plant.pdf",
+"anatomy of flowering plants.pdf",
+"biomolecules.pdf",
+"cell cycle and cell division.pdf",
+"chemical bonding.pdf",
+"current electricity.pdf",
+"electric charge and field.pdf",
+"motion in straight line.pdf",
+"gravitation.pdf",
+"optics.pdf",
+"oscillation and waves.pdf",
+"thermodynamics.pdf"
+];
+
+// try direct match first
+let path = "short-notes/" + clean + ".pdf";
+window.open(path,"_blank");
+}
+
+/* ======================
+   RENDER
+====================== */
+
+function renderNotes(){
+const grid=document.getElementById("notesGrid");
+grid.innerHTML="";
+
+chapters.forEach(ch=>{
+grid.innerHTML+=`
+<div class="card">
+<span class="tag tag-${ch.subject.toLowerCase().slice(0,3)}">
+${ch.subject} • ${ch.className}
+</span>
+<h4>${ch.name}</h4>
+<button class="btn"
+onclick="openPDF('${ch.subject}','${ch.name}')">
+View PDF
+</button>
+</div>
+`;
+});
+}
+
+function switchTab(id,btn){
+document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+btn.classList.add('active');
+document.querySelectorAll('#notes,#formula,#reaction,#booster')
+.forEach(sec=>sec.classList.add('hidden'));
+document.getElementById(id).classList.remove('hidden');
+}
+
+function filterCards(val){
+val=val.toLowerCase();
+document.querySelectorAll('#notes .card').forEach(card=>{
+card.style.display=card.innerText.toLowerCase().includes(val)?"block":"none";
+});
+}
+
+renderNotes();
+
+</script>
+
+</body>
+</html>
